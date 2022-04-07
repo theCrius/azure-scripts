@@ -15,13 +15,16 @@ if [ -z $vmRg ]
   then  echo "RG name is required as second paramenter"; exit;
 fi
 
-
+echo "------ $vmName/$vmRg retrieving network info ------";
 nicId=`az vm nic list -g $vmRg --vm-name $vmName --query "[0].id" -o tsv`;
-echo "nicId: $nicId";
+echo "Main nicId: $nicId";
 snetId=`az network nic show --ids $nicId --query "ipConfigurations[0].subnet.id" -o tsv`;
-echo "snetId: $snetId";
+echo "Main snetId: $snetId";
 nsgId=`az network nic show --ids $nicId --query "networkSecurityGroup.id" -o tsv`
-echo "nsgId: $nsgId";
+if [ -z "$nsgId" ] && echo "NIC SecGrp Empty"
+  then nsgId=`az network vnet subnet show --ids $snetId --query "networkSecurityGroup.id" -o tsv`; echo "SNET SecGrp: $nsgId";
+  else echo "NIC SecGrp: $nsgId";
+fi
 nsgRules=`az network nsg show --ids $nsgId --query 'securityRules[?priority<\`15000\`].{Name:name,Access:access,Protocol:protocol,Addresses:sourceAddressPrefixes,Ports:sourcePortRanges}' -o json`
 echo $nsgRules;
-echo "$vmName/$vmRg network info retrieved";
+echo "------ $vmName/$vmRg network info retrieved ------";
