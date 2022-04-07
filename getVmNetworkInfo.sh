@@ -25,6 +25,6 @@ if [ -z "$nsgId" ] && echo "NIC SecGrp Empty"
   then nsgId=`az network vnet subnet show --ids $snetId --query "networkSecurityGroup.id" -o tsv`; echo "SNET SecGrp: $nsgId";
   else echo "NIC SecGrp: $nsgId";
 fi
-nsgRules=`az network nsg show --ids $nsgId --query 'securityRules[?priority<\`15000\`].{Name:name,Access:access,Protocol:protocol,Addresses:sourceAddressPrefixes,Ports:sourcePortRanges}' -o json`
+nsgRules=`az network nsg show --ids $nsgId --query 'securityRules[?priority<\`15000\`].{Name:name,Direction:direction,Access:access,Protocol:protocol,Addresses:sourceAddressPrefixes,Ports:sourcePortRanges}' -o json`
 echo $nsgRules;
 echo "------ $vmName/$vmRg network info retrieved ------";
